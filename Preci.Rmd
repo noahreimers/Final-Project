@@ -1,0 +1,23 @@
+---
+title: "Preci"
+author: "Noah Reimers"
+date: "October 19, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+distances <- read_csv("GameDistances.csv")
+
+```
+
+```{r}
+summary(distances)
+```
+
+# I am going to be looking at statistics surrounding the NCAA Men's Basketball Tournament (otherwise known as March Madness). There is a lot of data that I can look at, but this first dataset I found is the distances that each team had to travel for each game played in the tournament between 2010 and 2017. When summarized, the median Winning Team Distance is ~150 miles lower than the Losing Team Distance. This could show that distance traveled has an effect on outcomes in the tournament, but is more likely reiterating the fact that the selection committee tries to place higher seeded teams (higher likelihood to win) in the region that they are from. I'll be using a lot more data than solely game distances to try to predict the over/under totals for games in this upcoming tournament. I will be in Las Vegas during the First Two rounds of the tournament and am looking to use this model to win some $$. 
+
+
+
