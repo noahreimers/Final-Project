@@ -8,36 +8,52 @@ library(tidyverse)
 
 pff_qb <- read_csv("PFF_Ratings_2008-2012_QB.csv") 
 pff_qb$TeamYear <- paste(pff_qb$Team, pff_qb$Year, sep = "")
-pff_qbs <- pff_qb %>% group_by(TeamYear) %>% summarize(qb_sum = sum(Overall))
+pff_qbs <- pff_qb %>% 
+  group_by(TeamYear) %>% 
+  summarize(qb_sum = sum(Overall))
 
 pff_rb <- read_csv("PFF_Ratings_2008-2012_RBs.csv")
 pff_rb$TeamYear <- paste(pff_rb$Team, pff_rb$Year, sep = "")
-pff_rbs <- pff_rb %>% group_by(TeamYear) %>% summarize(rb_sum = sum(Overall))
+pff_rbs <- pff_rb %>% 
+  group_by(TeamYear) %>% 
+  summarize(rb_sum = sum(Overall))
 
 pff_wr <- read_csv("PFF_Ratings_2008-2012_WR.csv")
 pff_wr$TeamYear <- paste(pff_wr$Team, pff_wr$Year, sep = "")
-pff_wrs <- pff_wr %>% group_by(TeamYear) %>% summarize(wr_sum = sum(`Overall Grade`))
+pff_wrs <- pff_wr %>% 
+  group_by(TeamYear) %>% 
+  summarize(wr_sum = sum(`Overall Grade`))
 
 pff_te <- read_csv("PFF_Ratings_2008-2012_TE.csv")
 pff_te$TeamYear <- paste(pff_te$Team, pff_te$Year, sep = "")
-pff_tes <- pff_te %>% group_by(TeamYear) %>% summarize(te_sum = sum(Overall))
+pff_tes <- pff_te %>% 
+  group_by(TeamYear) %>% 
+  summarize(te_sum = sum(Overall))
 
 pff_ol <- read_csv("PFF_Ratings_2008-2012_OL.csv")
 pff_ol$TeamYear <- paste(pff_ol$Team, pff_ol$Year, sep = "")
-pff_ols <- pff_ol %>% group_by(TeamYear) %>% summarize(ol_sum = sum(`Overall Rating`))
+pff_ols <- pff_ol %>% 
+  group_by(TeamYear) %>% 
+  summarize(ol_sum = sum(`Overall Rating`))
 
 pff_dl <- read_csv("PFF_Ratings_2008-2012_DL.csv")
 pff_dl$TeamYear <- paste(pff_dl$Team, pff_dl$Year, sep = "")
-pff_dls <- pff_dl %>% group_by(TeamYear) %>% summarize(dl_sum = sum(Overall))
+pff_dls <- pff_dl %>% 
+  group_by(TeamYear) %>% 
+  summarize(dl_sum = sum(Overall))
 
 pff_db <- read_csv("PFF_Ratings_2008-2012_DB.csv")
 names(pff_db)[4]="Year"
 pff_db$TeamYear <- paste(pff_db$Team, pff_db$Year, sep = "")
-pff_dbs <- pff_db %>% group_by(TeamYear) %>% summarize(db_sum = sum(Overall))
+pff_dbs <- pff_db %>% 
+  group_by(TeamYear) %>% 
+  summarize(db_sum = sum(Overall))
 
 pff_lb <- read_csv("PFF_Ratings_2008-2012_LB.csv")
 pff_lb$TeamYear <- paste(pff_lb$Team, pff_lb$Year, sep = "")
-pff_lbs <- pff_lb %>% group_by(TeamYear) %>% summarize(lb_sum = sum(Overall))
+pff_lbs <- pff_lb %>% 
+  group_by(TeamYear) %>% 
+  summarize(lb_sum = sum(Overall))
 
 
 # The data that I'm loading in here is the aggregated team ratings that include things like "Run offense", "Pass defense", etc. 
@@ -49,7 +65,9 @@ pff_team <- read_csv("PFF_Ratings_2008-2012_Team.csv")
 # This line of code is aggregating the overall ratings for each team over the 5 years to give a summation of their ratings for
 # offense and defense.
 
-pff_team_total <- pff_team %>% group_by(Team) %>% summarize(team_total_offense = sum(`Overall Offense`), team_total_defense = sum(`Overall Defense`))
+pff_team_total <- pff_team %>% 
+  group_by(Team) %>% 
+  summarize(team_total_offense = sum(`Overall Offense`), team_total_defense = sum(`Overall Defense`))
 
 # This code is reading in each team's record for each of the 5 years observed in the pff data. I found and altered this data on 
 # my own.
@@ -75,21 +93,28 @@ positions_team_records <- records_team_ratings %>%
   left_join(pff_lbs, by = "TeamYear")
 
 positions_team_records <- positions_team_records %>% 
-  select(TeamsYear, `Overall Offense`, `Pass Offense`, `Rush Offense`, `Pass Block`, `Run Block`, `Overall Defense`, `Run Defense`,
-         `Pass Rush`, `Pass Coverage`, `Special Teams`, Pct, Pyt_Exp, qb_sum, rb_sum, wr_sum, te_sum, ol_sum, dl_sum, db_sum, lb_sum)
-write_rds(positions_team_records, "p_groups_records.rds", compress = "none")
+  mutate(Overall_Offense = `Overall Offense`, Overall_Defense = `Overall Defense`)
+positions_team_records <- positions_team_records %>% 
+  select(TeamsYear, Overall_Offense, `Pass Offense`, `Rush Offense`, `Pass Block`, `Run Block`, Overall_Defense, 
+         `Run Defense`,`Pass Rush`, `Pass Coverage`, `Special Teams`, Pct, Pyt_Exp, qb_sum, rb_sum, wr_sum, te_sum, ol_sum, 
+         dl_sum, db_sum, lb_sum) 
+
+# Here I am writing the first portion of the data to an rds.
+
+write_rds(positions_team_records, "Demo_App/p_groups_records.rds", compress = "none")
 
 
 
 
 
-
+## I am now reading in the NFL Draft data that I have from Pro Football Reference. This includes the team, round, pick, position,
+## and the value (measured in AV) that the team got from this player (as of 2018). So there is clearly some bias from players 
+## that were drafted in 2008 vs. 2011. I have also taken the personal liberty to lag the NFL Draft data by one year. So in this
+## data the 2009 NFL Draft will be listed as 2008, because it followed the 2008 NFL season. I thought this made the most sense
+## in terms of what I am looking at.
 
 draft<- read_csv("Draft Data.csv") 
 colnames(draft)[6] <- "TeamYear"
-
-
-draft_records_pgroups <- draft %>% left_join(positions_team_records, by = "TeamYear")
 
 ## The first chunk is creating a variable in each of the positional datasets that gives me the ability to match up the other data
 ## with each Team, Year and Position, and is consolidating all the different positions within "DL", "OL" and "DB" that are listed.
@@ -135,7 +160,8 @@ draft$Pos <- gsub("NOL", "DL", draft$Pos)
 
 ## In this small chunk I am making all of the value observations that are NA equal to 0 so I can sum up the value from each pick
 ## The second line is creating a strength of round variable. A 1st round pick is worth much more than a 7th round pick, so I have
-## used a simple 8 - round equation to make the 1st round worth the most.
+## used a simple 8 - round equation to make the 1st round worth the most. This is a very simplistic way of valuing the draft
+## picks, but one that I think makes sense.
 
 draft[is.na(draft)] <- 0
 draft$Rnd_str <- 8 - draft$Rnd
@@ -155,25 +181,43 @@ draft_str <- draft %>%
 draft_str_value <- draft %>% group_by(Team, Pos) %>% 
   summarize(draft_picks = sum(Rnd_str), value = sum(DrAV))
 
-## Now I am going to sum the total ratings for each of the position groups for each team individually.
+## Now I am going to sum the total ratings for each of the position groups for each team individually. Some of them have slightly
+## different names for their grades.
 
-pff_qb_group <- pff_qb %>% group_by(TeamPos) %>% summarize(team_total_qb = sum(Overall))
-pff_rb_group <- pff_rb %>% group_by(TeamPos) %>% summarize(team_total_rb = sum(Overall))
-pff_wr_group <- pff_wr %>% group_by(TeamPos) %>% summarize(team_total_wr = sum(`Overall Grade`))
-pff_te_group <- pff_te %>% group_by(TeamPos) %>% summarize(team_total_te = sum(Overall))
-pff_ol_group <- pff_ol %>% group_by(TeamPos) %>% summarize(team_total_ol = sum(`Overall Rating`))
-pff_dl_group <- pff_dl %>% group_by(TeamPos) %>% summarize(team_total_dl = sum(Overall))
-pff_lb_group <- pff_lb %>% group_by(TeamPos) %>% summarize(team_total_lb = sum(Overall))
-pff_db_group <- pff_db %>% group_by(TeamPos) %>% summarize(team_total_db = sum(Overall))
+pff_qb_group <- pff_qb %>% group_by(TeamPos) %>% summarize(team_total = sum(Overall))
+pff_rb_group <- pff_rb %>% group_by(TeamPos) %>% summarize(team_total = sum(Overall))
+pff_wr_group <- pff_wr %>% group_by(TeamPos) %>% summarize(team_total = sum(`Overall Grade`))
+pff_te_group <- pff_te %>% group_by(TeamPos) %>% summarize(team_total = sum(Overall))
+pff_ol_group <- pff_ol %>% group_by(TeamPos) %>% summarize(team_total = sum(`Overall Rating`))
+pff_dl_group <- pff_dl %>% group_by(TeamPos) %>% summarize(team_total = sum(Overall))
+pff_lb_group <- pff_lb %>% group_by(TeamPos) %>% summarize(team_total = sum(Overall))
+pff_db_group <- pff_db %>% group_by(TeamPos) %>% summarize(team_total = sum(Overall))
 
 
+## This line is creating a TeamPos variable that I can then use to join with other datasets.
 
-ratings_draft_strength <- draft_str %>% 
-  left_join(pff_qb_group, by = "TeamPos") %>% 
-  left_join(pff_rb_group, by = "TeamPos") %>% 
-  left_join(pff_wr_group, by = "TeamPos") %>% 
-  left_join(pff_te_group, by = "TeamPos") %>% 
-  left_join(pff_ol_group, by = "TeamPos") %>% 
-  left_join(pff_dl_group, by = "TeamPos") %>% 
-  left_join(pff_db_group, by = "TeamPos") %>% 
-  left_join(pff_lb_group, by = "TeamPos")
+draft_str_value$TeamPos <- paste(draft_str_value$Team, draft_str_value$Pos, sep = "")
+
+## Here I am binding all of the individual position group ratings with each other and then using a left join to bring in the 
+## Draft and value data. I made all of the NAs 0. I made a value_per variable that just simply divides the value derived from
+## the picks by the strength in the draft picks they used. 
+
+ratings_draft_strength <- rbind(pff_qb_group, pff_rb_group, pff_wr_group, pff_te_group, pff_ol_group, pff_dl_group, pff_db_group,
+                                pff_lb_group) %>% left_join(draft_str_value, by = "TeamPos")
+ratings_draft_strength[is.na(ratings_draft_strength)] <- 0
+ratings_draft_strength <- ratings_draft_strength %>% 
+  mutate(value_per= ratings_draft_strength$value/ratings_draft_strength$draft_picks)
+
+## This code chunk is taking the individual year records I already have in the data and transforming them into full 5 year 
+## performance numbers, and then using a left join to combine that data with the ratings and draft data.
+
+total_records <- nfl_records %>% group_by(Team) %>% 
+  summarize(Win_Pct = sum(Pct)/5)
+
+ratings_draft_strength <- ratings_draft_strength %>% 
+  left_join(total_records, by = "Team")
+ratings_draft_strength <- na.omit(ratings_draft_strength)
+
+ratings_draft_strength <- ratings_draft_strength %>% mutate(all_positions = "All") %>% mutate(all_teams = "All")
+
+write_rds(ratings_draft_strength, "Demo_App/draft_value_ratings.rds", compress = "none")
