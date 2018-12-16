@@ -101,7 +101,7 @@ positions_team_records <- positions_team_records %>%
 
 # Here I am writing the first portion of the data to an rds.
 
-write_rds(positions_team_records, "Demo_App/p_groups_records.rds", compress = "none")
+write_rds(positions_team_records, "final_app/p_groups_records.rds", compress = "none")
 
 
 
@@ -220,4 +220,4 @@ ratings_draft_strength <- na.omit(ratings_draft_strength)
 
 ratings_draft_strength <- ratings_draft_strength %>% mutate(all_positions = "All") %>% mutate(all_teams = "All")
 
-write_rds(ratings_draft_strength, "Demo_App/draft_value_ratings.rds", compress = "none")
+write_rds(ratings_draft_strength, "final_app/draft_value_ratings.rds", compress = "none")
