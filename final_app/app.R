@@ -108,7 +108,9 @@ ui <- navbarPage(
                   p("The X Variable allows you to select any specific position group and the corresponding rating from that
                     group for each team and each year between 2008 and 2012. The Y variable allows you to chose different
                     success rates like winning percentage, overall defensive ratings, overall offensive rating and the 
-                    Pythagorean expectation of a team's winning percentage (based upon points scored and given up)"),
+                    Pythagorean expectation of a team's winning percentage (based upon points scored and given up). When
+                    clicking on a point on the graph, the data accompanying it will then show up below. The team's acronym
+                    will then show up after the #1."),
                   selectInput("xcol",
                               "X Variable", choices = x1_choices,
                               selected = "qb_ratings"
@@ -154,7 +156,9 @@ tabPanel("Ratings and the NFL Draft",
                  the approximate value (provided by Pro Football Reference) of the players they drafted in each position group
                  over the period 2008-2012. Value per Draft Pick Strength Index simply divides the Value derived by the 
                  Draft Pick Strength Index. The Win Percentage Over Period simply matches each of these measures with the
-                 team's winning percentage of the entire period."),
+                 team's winning percentage of the entire period. When clicking on a point on the data, the team acronym and the
+position they play should show up. So a Pittsburgh Steelers Quarterback would show as 'PITQB'should appear there and
+                 after the #1 on the data output below the graph. It is an ugly output, but shows the team acronym."),
                selectInput("xselect" , 
                            "X Variable" , choices = x2_choices,
                            selected = "draft_picks"
